@@ -1,0 +1,93 @@
+{
+  "name": "satellite-console",
+  "version": "1.0.0",
+  "description": "浏览器端实时日志聚合工具，用于多页面应用调试 - Browser-side real-time log aggregation tool for multi-page application debugging",
+  "type": "module",
+  "main": "dist/launcher.min.js",
+  "module": "dist/launcher.min.js",
+  "types": "dist/types/launcher.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/launcher.d.ts",
+      "import": "./dist/launcher.min.js",
+      "require": "./dist/launcher.min.js"
+    },
+    "./injection": {
+      "types": "./dist/types/injection-script.d.ts",
+      "import": "./dist/injection-script.min.js",
+      "require": "./dist/injection-script.min.js"
+    },
+    "./satellite": {
+      "types": "./dist/types/satellite-app.d.ts",
+      "import": "./dist/satellite-app.min.js",
+      "require": "./dist/satellite-app.min.js"
+    },
+    "./window": "./src/satellite-window.html"
+  },
+  "files": [
+    "dist",
+    "src/satellite-window.html",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "cross-env NODE_ENV=production rollup -c",
+    "build:dev": "rollup -c",
+    "dev": "rollup -c -w",
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "prepublishOnly": "npm run build",
+    "preversion": "npm test && npm run build",
+    "postversion": "git push && git push --tags",
+    "test": "vitest --run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "check:publish": "node scripts/pre-publish-check.cjs",
+    "publish:patch": "npm run check:publish && npm version patch && npm publish",
+    "publish:minor": "npm run check:publish && npm version minor && npm publish",
+    "publish:major": "npm run check:publish && npm version major && npm publish"
+  },
+  "keywords": [
+    "console",
+    "logging",
+    "debug",
+    "debugger",
+    "multi-page",
+    "satellite",
+    "browser",
+    "devtools",
+    "log-aggregation",
+    "real-time",
+    "broadcast-channel"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/satellite-console.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/satellite-console/issues"
+  },
+  "homepage": "https://github.com/yourusername/satellite-console#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@vitest/ui": "^4.0.15",
+    "cross-env": "^10.1.0",
+    "http-server": "^14.1.1",
+    "jsdom": "^27.2.0",
+    "playwright": "^1.57.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.9.6",
+    "rollup-plugin-copy": "^3.5.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.15"
+  }
+}

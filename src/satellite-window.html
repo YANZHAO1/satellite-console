@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satellite Console</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+      font-size: 13px;
+      background-color: #1e1e1e;
+      color: #cccccc;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* 顶部工具栏 */
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      background-color: #252526;
+      border-bottom: 1px solid #3e3e42;
+      flex-shrink: 0;
+      animation: slideDown 0.4s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .toolbar-title {
+      font-weight: 600;
+      color: #ffffff;
+      margin-right: auto;
+      animation: fadeIn 0.5s ease-out 0.2s both;
+    }
+
+    /* 按钮样式 */
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      background-color: #0e639c;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.4s, height 0.4s;
+    }
+
+    .btn:hover {
+      background-color: #1177bb;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(14, 99, 156, 0.4);
+    }
+
+    .btn:hover::before {
+      width: 200px;
+      height: 200px;
+    }
+
+    .btn:active {
+      background-color: #0d5a8f;
+      transform: translateY(0);
+      box-shadow: 0 1px 4px rgba(14, 99, 156, 0.3);
+    }
+
+    .btn-clear {
+      background-color: #5a5a5a;
+    }
+
+    .btn-clear:hover {
+      background-color: #6e6e6e;
+      box-shadow: 0 2px 8px rgba(90, 90, 90, 0.4);
+    }
+
+    .btn-clear:active {
+      background-color: #4a4a4a;
+    }
+
+    .btn-clear-filters {
+      background-color: #5a5a5a;
+      animation: fadeInScale 0.3s ease-out;
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .btn-clear-filters:hover {
+      background-color: #6e6e6e;
+      box-shadow: 0 2px 8px rgba(90, 90, 90, 0.4);
+    }
+
+    .btn-clear-filters:active {
+      background-color: #4a4a4a;
+    }
+
+    /* 搜索框 */
+    .search-box {
+      flex: 1;
+      max-width: 300px;
+      padding: 6px 10px;
+      border: 1px solid #3e3e42;
+      border-radius: 4px;
+      background-color: #3c3c3c;
+      color: #cccccc;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus {
+      border-color: #0e639c;
+      background-color: #2d2d30;
+      box-shadow: 0 0 0 3px rgba(14, 99, 156, 0.2);
+      transform: scale(1.02);
+    }
+
+    .search-box::placeholder {
+      color: #858585;
+      transition: color 0.3s ease;
+    }
+
+    .search-box:focus::placeholder {
+      color: #6a6a6a;
+    }
+
+    /* 来源筛选器 */
+    .source-filter {
+      padding: 6px 10px;
+      border: 1px solid #3e3e42;
+      border-radius: 4px;
+      background-color: #3c3c3c;
+      color: #cccccc;
+      font-size: 13px;
+      cursor: pointer;
+      outline: none;
+      min-width: 150px;
+      transition: all 0.3s ease;
+    }
+
+    .source-filter:hover {
+      border-color: #5a5a5a;
+      background-color: #454545;
+    }
+
+    .source-filter:focus {
+      border-color: #0e639c;
+      box-shadow: 0 0 0 3px rgba(14, 99, 156, 0.2);
+      transform: scale(1.02);
+    }
+
+    /* 日志列表容器 */
+    .log-container {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      background-color: #1e1e1e;
+      position: relative;
+    }
+
+    .log-list {
+      padding: 8px 8px 20px 8px; /* 底部留 20px 空白 */
+      position: relative;
+      width: 100%;
+      min-height: 100%;
+      overflow: hidden;
+    }
+
+    /* 日志条目（优化性能：使用 GPU 加速，添加动态效果） */
+    .log-entry {
+      display: flex;
+      padding: 6px 8px;
+      margin-bottom: 2px;
+      border-left: 3px solid transparent;
+      background-color: #252526;
+      border-radius: 2px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      contain: layout style; /* CSS containment 优化 */
+      transition: background-color 0.2s ease-out, box-shadow 0.2s ease-out;
+      opacity: 1;
+      transform: translateX(0);
+      min-height: auto; /* 高度自适应内容 */
+      height: auto; /* 高度自适应内容 */
+    }
+
+    /* 新日志条目的淡入动画 - 使用 class 控制 */
+    .log-entry.log-entry-new {
+      animation: slideInFade 0.4s ease-out;
+    }
+
+    @keyframes slideInFade {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .log-entry:hover {
+      background-color: #2a2d2e;
+      box-shadow: -3px 0 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* 日志级别样式 */
+    .log-entry.log-level-log {
+      border-left-color: #4ec9b0;
+    }
+
+    .log-entry.log-level-warn {
+      border-left-color: #dcdcaa;
+      background-color: #332b00;
+      animation: slideInFade 0.3s ease-out forwards, warningGlow 2s ease-in-out infinite;
+    }
+
+    @keyframes warningGlow {
+      0%, 100% {
+        box-shadow: 0 0 0 rgba(220, 220, 170, 0);
+      }
+      50% {
+        box-shadow: 0 0 10px rgba(220, 220, 170, 0.2);
+      }
+    }
+
+    .log-entry.log-level-warn:hover {
+      background-color: #3d3300;
+    }
+
+    .log-entry.log-level-error {
+      border-left-color: #f48771;
+      background-color: #5a1d1d;
+      animation: slideInFade 0.3s ease-out forwards, errorPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes errorPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 rgba(244, 135, 113, 0);
+      }
+      50% {
+        box-shadow: 0 0 15px rgba(244, 135, 113, 0.3);
+      }
+    }
+
+    .log-entry.log-level-error:hover {
+      background-color: #6b2222;
+    }
+
+    /* 日志级别图标 */
+    .log-icon {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      margin-top: 2px;
+      transition: transform 0.2s ease;
+    }
+
+    .log-entry:hover .log-icon {
+      transform: scale(1.2);
+    }
+
+    .log-icon.icon-log {
+      color: #4ec9b0;
+    }
+
+    .log-icon.icon-warn {
+      color: #dcdcaa;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .log-icon.icon-error {
+      color: #f48771;
+    }
+    
+    /* 错误图标在新日志时抖动 */
+    .log-entry-new .log-icon.icon-error {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+      0%, 100% {
+        transform: translateX(0);
+      }
+      25% {
+        transform: translateX(-2px);
+      }
+      75% {
+        transform: translateX(2px);
+      }
+    }
+
+    /* 日志元数据 */
+    .log-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .log-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #858585;
+    }
+
+    .log-timestamp {
+      flex-shrink: 0;
+    }
+
+    .log-source {
+      flex-shrink: 0;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* 日志内容（优化渲染性能） */
+    .log-content {
+      color: #cccccc;
+      word-break: break-word;
+      white-space: pre-wrap;
+      contain: content; /* 内容隔离优化 */
+      transition: max-height 0.3s ease-out;
+    }
+
+    .log-content.expandable {
+      cursor: pointer;
+      user-select: none; /* 防止意外选中文本 */
+    }
+
+    .log-content.expandable:hover {
+      color: #ffffff;
+    }
+
+    .log-content.collapsed {
+      max-height: 100px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .log-content.collapsed::after {
+      content: '...';
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      background-color: #252526;
+      padding-left: 20px;
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    /* 空状态 */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #858585;
+      text-align: center;
+      padding: 40px;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .empty-state-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #cccccc;
+      animation: fadeIn 0.5s ease-out 0.2s both;
+    }
+
+    .empty-state-description {
+      font-size: 13px;
+      max-width: 400px;
+      animation: fadeIn 0.5s ease-out 0.4s both;
+    }
+
+    /* 加载状态 */
+    .loading-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #858585;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #3e3e42;
+      border-top-color: #0e639c;
+      border-right-color: #0e639c;
+      border-radius: 50%;
+      animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+      margin-bottom: 16px;
+      will-change: transform; /* GPU 加速动画 */
+      box-shadow: 0 0 20px rgba(14, 99, 156, 0.3);
+    }
+
+    @keyframes spin {
+      0% { 
+        transform: rotate(0deg);
+      }
+      100% { 
+        transform: rotate(360deg);
+      }
+    }
+
+    .loading-text {
+      font-size: 14px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* 响应式布局 */
+    @media (max-width: 768px) {
+      .toolbar {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .toolbar-title {
+        width: 100%;
+        margin-bottom: 4px;
+      }
+      
+      .log-stats {
+        width: 100%;
+        order: 2;
+        justify-content: center;
+      }
+
+      .search-box {
+        max-width: none;
+        flex: 1;
+      }
+
+      .source-filter {
+        flex: 1;
+        min-width: 120px;
+      }
+
+      .log-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+      }
+
+      .log-source {
+        max-width: 100%;
+      }
+      
+      .new-log-indicator {
+        top: 80px;
+        font-size: 11px;
+        padding: 6px 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .toolbar {
+        padding: 6px 8px;
+      }
+
+      .log-list {
+        padding: 4px 4px 16px 4px; /* 底部留 16px 空白 */
+      }
+
+      .log-entry {
+        padding: 4px 6px;
+        font-size: 11px;
+      }
+
+      .btn {
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+    }
+
+    /* 滚动条样式（优化性能） */
+    .log-container {
+      scrollbar-width: thin; /* Firefox */
+      scrollbar-color: #424242 #1e1e1e; /* Firefox */
+    }
+    
+    .log-container::-webkit-scrollbar {
+      width: 10px;
+    }
+
+    .log-container::-webkit-scrollbar-track {
+      background: #1e1e1e;
+    }
+
+    .log-container::-webkit-scrollbar-thumb {
+      background: #424242;
+      border-radius: 5px;
+      transition: background 0.2s ease;
+    }
+
+    .log-container::-webkit-scrollbar-thumb:hover {
+      background: #4e4e4e;
+    }
+
+    /* 新日志提示条 */
+    .new-log-indicator {
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: linear-gradient(135deg, #0e639c 0%, #1177bb 100%);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(14, 99, 156, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 1000;
+      transition: all 0.3s ease-out;
+    }
+
+    .new-log-indicator.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* 日志统计信息 */
+    .log-stats {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: #858585;
+      align-items: center;
+    }
+
+    .log-stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background-color: rgba(255, 255, 255, 0.05);
+      transition: all 0.2s ease;
+    }
+
+    .log-stat-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.05);
+    }
+
+    .log-stat-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .log-stat-dot.info {
+      background-color: #4ec9b0;
+    }
+
+    .log-stat-dot.warn {
+      background-color: #dcdcaa;
+    }
+
+    .log-stat-dot.error {
+      background-color: #f48771;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 顶部工具栏 -->
+    <div class="toolbar">
+      <div class="toolbar-title">🛰️ Satellite Console</div>
+      <div class="log-stats" id="log-stats" style="display: none;">
+        <div class="log-stat-item" title="信息日志">
+          <span class="log-stat-dot info"></span>
+          <span id="stat-info">0</span>
+        </div>
+        <div class="log-stat-item" title="警告日志">
+          <span class="log-stat-dot warn"></span>
+          <span id="stat-warn">0</span>
+        </div>
+        <div class="log-stat-item" title="错误日志">
+          <span class="log-stat-dot error"></span>
+          <span id="stat-error">0</span>
+        </div>
+      </div>
+      <button class="btn btn-clear" id="clear-btn" title="清空日志">清空</button>
+      <input 
+        type="text" 
+        class="search-box" 
+        id="search-input" 
+        placeholder="搜索日志内容..."
+        autocomplete="off"
+      />
+      <select class="source-filter" id="source-filter">
+        <option value="">所有来源</option>
+      </select>
+      <button class="btn btn-clear-filters" id="clear-filters-btn" title="清除筛选条件" style="display: none;">清除筛选</button>
+    </div>
+
+    <!-- 新日志提示 -->
+    <div class="new-log-indicator" id="new-log-indicator">
+      📨 新日志到达
+    </div>
+
+    <!-- 日志列表容器 -->
+    <div class="log-container" id="log-container">
+      <!-- 加载状态 -->
+      <div class="loading-state" id="loading-state">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在初始化...</div>
+      </div>
+
+      <!-- 空状态 -->
+      <div class="empty-state" id="empty-state" style="display: none;">
+        <div class="empty-state-icon">📭</div>
+        <div class="empty-state-title">暂无日志</div>
+        <div class="empty-state-description">
+          在业务页面中调用 console.log()、console.warn() 或 console.error()，日志将会显示在这里。
+        </div>
+      </div>
+
+      <!-- 日志列表 -->
+      <div class="log-list" id="log-list" style="display: none;">
+        <!-- 日志条目将通过 JavaScript 动态插入 -->
+      </div>
+    </div>
+  </div>
+
+  <script src="satellite-app.min.js"></script>
+</body>
+</html>

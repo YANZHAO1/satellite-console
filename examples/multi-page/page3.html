@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面 3 - 数据分析</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      color: white;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    button {
+      background: white;
+      color: #4facfe;
+      border: none;
+      padding: 12px 24px;
+      margin: 5px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .info {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    a {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 页面 3 - 数据分析</h1>
+    
+    <div class="info">
+      <p><strong>多页面场景演示</strong></p>
+      <p>这是第三个页面，模拟数据分析功能。尝试使用搜索功能过滤日志。</p>
+      <p>
+        <a href="page1.html" target="_blank">打开页面 1 (用户管理)</a> | 
+        <a href="page2.html" target="_blank">打开页面 2 (订单管理)</a>
+      </p>
+    </div>
+
+    <h2>数据操作</h2>
+    <button onclick="loadDashboard()">加载仪表盘</button>
+    <button onclick="generateReport()">生成报表</button>
+    <button onclick="exportData()">导出数据</button>
+    <button onclick="runAnalysis()">运行分析</button>
+    <button onclick="simulateDataError()">模拟数据错误</button>
+  </div>
+
+  <script src="../../dist/launcher.min.js"></script>
+  <script>
+    // 只注入脚本，不重新打开窗口
+    SatelliteConsole.injectOnly('page3-data-analytics');
+
+    console.log('🟢 [页面3] 数据分析页面已加载');
+
+    function loadDashboard() {
+      console.log('[页面3] 加载仪表盘数据...');
+      
+      setTimeout(() => {
+        const dashboard = {
+          totalUsers: 1523,
+          totalOrders: 4892,
+          revenue: 298765.50,
+          activeUsers: 342,
+          conversionRate: 3.24,
+          avgOrderValue: 61.05
+        };
+        console.log('[页面3] 仪表盘数据:', dashboard);
+      }, 800);
+    }
+
+    function generateReport() {
+      console.log('[页面3] 生成报表...');
+      
+      const report = {
+        type: '月度销售报表',
+        period: '2024-12',
+        metrics: {
+          sales: 89234.50,
+          orders: 1456,
+          customers: 892,
+          growth: '+12.5%'
+        },
+        topProducts: [
+          { name: '商品A', sales: 23456.78 },
+          { name: '商品B', sales: 18923.45 },
+          { name: '商品C', sales: 15678.90 }
+        ]
+      };
+      
+      console.log('[页面3] 报表生成完成:', report);
+    }
+
+    function exportData() {
+      console.log('[页面3] 导出数据...');
+      
+      setTimeout(() => {
+        const exportInfo = {
+          format: 'CSV',
+          records: 5000,
+          fileSize: '2.3 MB',
+          downloadUrl: '/exports/data_20241208.csv'
+        };
+        console.warn('[页面3] 数据导出准备就绪:', exportInfo);
+      }, 1200);
+    }
+
+    function runAnalysis() {
+      console.log('[页面3] 开始运行数据分析...');
+      
+      // 模拟多步骤分析
+      setTimeout(() => {
+        console.log('[页面3] 步骤 1/3: 数据清洗完成');
+      }, 500);
+      
+      setTimeout(() => {
+        console.log('[页面3] 步骤 2/3: 特征提取完成');
+      }, 1000);
+      
+      setTimeout(() => {
+        const results = {
+          clusters: 5,
+          accuracy: 0.87,
+          insights: [
+            '用户群体 A 偏好高价商品',
+            '用户群体 B 对促销敏感',
+            '用户群体 C 复购率高'
+          ]
+        };
+        console.log('[页面3] 步骤 3/3: 分析完成', results);
+      }, 1500);
+    }
+
+    function simulateDataError() {
+      console.error('[页面3] 模拟数据分析错误');
+      
+      try {
+        throw new Error('数据源连接失败: 数据库超时');
+      } catch (error) {
+        console.error('[页面3] 分析失败:', error);
+        console.error('[页面3] 错误详情:', {
+          code: 'DB_TIMEOUT',
+          message: '数据库查询超过 30 秒',
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+  </script>
+</body>
+</html>

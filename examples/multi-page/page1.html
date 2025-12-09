@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面 1 - 用户管理</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      margin-top: 0;
+    }
+    button {
+      background: white;
+      color: #667eea;
+      border: none;
+      padding: 12px 24px;
+      margin: 5px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .info {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    a {
+      color: white;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 页面 1 - 用户管理</h1>
+    
+    <div class="info">
+      <p><strong>多页面场景演示</strong></p>
+      <p>这是第一个页面，模拟用户管理功能。打开其他页面查看多页面日志聚合效果。</p>
+      <p>
+        <a href="page2.html" target="_blank">打开页面 2 (订单管理)</a> | 
+        <a href="page3.html" target="_blank">打开页面 3 (数据分析)</a>
+      </p>
+    </div>
+
+    <h2>用户操作</h2>
+    <button onclick="loadUsers()">加载用户列表</button>
+    <button onclick="createUser()">创建新用户</button>
+    <button onclick="updateUser()">更新用户信息</button>
+    <button onclick="deleteUser()">删除用户</button>
+    <button onclick="simulateError()">模拟错误</button>
+  </div>
+
+  <script src="../../dist/launcher.min.js"></script>
+  <script>
+    // 启动卫星控制台（只在第一个页面启动）
+    if (!SatelliteConsole.isWindowOpen()) {
+      SatelliteConsole.launch({
+        width: 1000,
+        height: 700
+      });
+    } else {
+      // 如果窗口已打开，只注入脚本
+      SatelliteConsole.injectOnly('page1-user-management');
+    }
+
+    console.log('🟢 [页面1] 用户管理页面已加载');
+
+    function loadUsers() {
+      console.log('[页面1] 开始加载用户列表...');
+      
+      // 模拟异步加载
+      setTimeout(() => {
+        const users = [
+          { id: 1, name: '张三', email: 'zhangsan@example.com' },
+          { id: 2, name: '李四', email: 'lisi@example.com' },
+          { id: 3, name: '王五', email: 'wangwu@example.com' }
+        ];
+        console.log('[页面1] 用户列表加载成功:', users);
+      }, 500);
+    }
+
+    function createUser() {
+      console.log('[页面1] 创建新用户...');
+      
+      const newUser = {
+        id: Date.now(),
+        name: '新用户',
+        email: 'newuser@example.com',
+        createdAt: new Date().toISOString()
+      };
+      
+      console.log('[页面1] 新用户创建成功:', newUser);
+    }
+
+    function updateUser() {
+      console.log('[页面1] 更新用户信息...');
+      
+      const updatedUser = {
+        id: 1,
+        name: '张三（已更新）',
+        email: 'zhangsan.updated@example.com',
+        updatedAt: new Date().toISOString()
+      };
+      
+      console.warn('[页面1] 用户信息已更新:', updatedUser);
+    }
+
+    function deleteUser() {
+      console.warn('[页面1] 删除用户 ID: 2');
+      
+      setTimeout(() => {
+        console.log('[页面1] 用户删除成功');
+      }, 300);
+    }
+
+    function simulateError() {
+      console.error('[页面1] 模拟用户管理错误');
+      
+      try {
+        throw new Error('用户不存在或权限不足');
+      } catch (error) {
+        console.error('[页面1] 捕获错误:', error);
+      }
+    }
+  </script>
+</body>
+</html>

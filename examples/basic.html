@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Satellite Console - 基础示例</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+    }
+    .section {
+      margin: 30px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+    .section h2 {
+      margin-top: 0;
+      color: #495057;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    .info {
+      background: #d1ecf1;
+      border-left: 4px solid #0c5460;
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛰️ Satellite Console - 基础示例</h1>
+  
+  <div class="info">
+    <strong>提示：</strong>卫星窗口应该已经自动打开。如果没有，请检查浏览器是否阻止了弹出窗口。
+  </div>
+
+  <div class="section">
+    <h2>基础日志测试</h2>
+    <p>点击下面的按钮生成不同类型的日志，并在卫星窗口中查看效果。</p>
+    <button onclick="testBasicLogs()">生成基础日志</button>
+    <button onclick="testComplexObjects()">测试复杂对象</button>
+    <button onclick="testErrors()">测试错误日志</button>
+  </div>
+
+  <div class="section">
+    <h2>批量日志测试</h2>
+    <p>测试大量日志的性能和虚拟滚动功能。</p>
+    <button onclick="generateBatchLogs(10)">生成 10 条日志</button>
+    <button onclick="generateBatchLogs(100)">生成 100 条日志</button>
+    <button onclick="generateBatchLogs(1000)">生成 1000 条日志</button>
+  </div>
+
+  <div class="section">
+    <h2>特殊情况测试</h2>
+    <p>测试循环引用、深层嵌套等特殊情况。</p>
+    <button onclick="testCircularReference()">测试循环引用</button>
+    <button onclick="testDeepNesting()">测试深层嵌套</button>
+    <button onclick="testLongStrings()">测试长字符串</button>
+  </div>
+
+  <div class="section">
+    <h2>窗口控制</h2>
+    <p>控制卫星窗口的打开和关闭。</p>
+    <button onclick="openSatellite()">打开卫星窗口</button>
+    <button onclick="closeSatellite()">关闭卫星窗口</button>
+    <button onclick="checkWindowStatus()">检查窗口状态</button>
+  </div>
+
+  <script src="../dist/launcher.min.js"></script>
+  <script>
+    // 启动卫星控制台
+    SatelliteConsole.launch({
+      width: 900,
+      height: 700
+    });
+
+    // 基础日志测试
+    function testBasicLogs() {
+      console.log('这是一条普通日志');
+      console.log('带参数的日志:', 'value1', 123, true);
+      console.warn('这是一条警告日志');
+      console.error('这是一条错误日志');
+    }
+
+    // 复杂对象测试
+    function testComplexObjects() {
+      console.log('对象日志:', { 
+        name: '测试对象', 
+        value: 123,
+        nested: {
+          level1: {
+            level2: 'deep value'
+          }
+        }
+      });
+      
+      console.log('数组日志:', [1, 2, 3, 4, 5]);
+      
+      console.log('混合类型:', {
+        string: 'text',
+        number: 42,
+        boolean: true,
+        null: null,
+        undefined: undefined,
+        array: [1, 2, 3],
+        object: { key: 'value' }
+      });
+    }
+
+    // 错误测试
+    function testErrors() {
+      try {
+        throw new Error('这是一个测试错误');
+      } catch (error) {
+        console.error('捕获的错误:', error);
+      }
+      
+      console.error('错误对象:', new Error('另一个错误'));
+      console.error('多个参数:', 'Error occurred:', new Error('Details'), { context: 'test' });
+    }
+
+    // 批量日志生成
+    function generateBatchLogs(count) {
+      console.log(`开始生成 ${count} 条日志...`);
+      
+      for (let i = 0; i < count; i++) {
+        const type = i % 3;
+        if (type === 0) {
+          console.log(`日志 #${i + 1}:`, { index: i, timestamp: Date.now() });
+        } else if (type === 1) {
+          console.warn(`警告 #${i + 1}:`, `这是第 ${i + 1} 条警告`);
+        } else {
+          console.error(`错误 #${i + 1}:`, new Error(`错误 ${i + 1}`));
+        }
+      }
+      
+      console.log(`完成生成 ${count} 条日志`);
+    }
+
+    // 循环引用测试
+    function testCircularReference() {
+      const obj = { name: '循环引用对象' };
+      obj.self = obj;
+      console.log('循环引用对象:', obj);
+    }
+
+    // 深层嵌套测试
+    function testDeepNesting() {
+      const deep = {
+        level1: {
+          level2: {
+            level3: {
+              level4: {
+                level5: {
+                  level6: 'very deep value'
+                }
+              }
+            }
+          }
+        }
+      };
+      console.log('深层嵌套对象:', deep);
+    }
+
+    // 长字符串测试
+    function testLongStrings() {
+      const longString = 'A'.repeat(2000);
+      console.log('长字符串 (2000 字符):', longString);
+      
+      const largeArray = Array.from({ length: 200 }, (_, i) => i);
+      console.log('大数组 (200 元素):', largeArray);
+    }
+
+    // 窗口控制函数
+    function openSatellite() {
+      SatelliteConsole.launch({
+        width: 900,
+        height: 700
+      });
+      console.log('尝试打开卫星窗口');
+    }
+
+    function closeSatellite() {
+      SatelliteConsole.close();
+      console.log('卫星窗口已关闭');
+    }
+
+    function checkWindowStatus() {
+      const isOpen = SatelliteConsole.isWindowOpen();
+      alert(`卫星窗口状态: ${isOpen ? '已打开' : '已关闭'}`);
+      console.log('窗口状态:', isOpen ? '已打开' : '已关闭');
+    }
+
+    // 页面加载时的欢迎信息
+    console.log('🛰️ Satellite Console 基础示例已加载');
+    console.log('请点击页面上的按钮测试各种功能');
+  </script>
+</body>
+</html>

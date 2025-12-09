@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>测试动态效果</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+    .controls {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      background-color: #0e639c;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #1177bb;
+    }
+    .info {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <h2>🛰️ Satellite Console 动态效果测试</h2>
+    <p>点击下面的按钮生成不同类型的日志，观察动态效果：</p>
+    
+    <button onclick="sendLog()">📝 发送普通日志</button>
+    <button onclick="sendWarn()">⚠️ 发送警告日志</button>
+    <button onclick="sendError()">❌ 发送错误日志</button>
+    <button onclick="sendBatch()">📦 批量发送日志 (10条)</button>
+    <button onclick="sendObject()">🔧 发送对象日志</button>
+    
+    <div class="info">
+      <strong>提示：</strong>请先打开 Satellite Console 窗口（点击浏览器扩展图标或运行 launcher），然后点击上面的按钮查看动态效果。
+    </div>
+  </div>
+
+  <script src="dist/injection-script.min.js"></script>
+  <script>
+    let counter = 0;
+
+    function sendLog() {
+      counter++;
+      console.log(`这是第 ${counter} 条普通日志消息 ✨`);
+    }
+
+    function sendWarn() {
+      counter++;
+      console.warn(`警告 #${counter}: 这是一个警告消息！请注意查看。`);
+    }
+
+    function sendError() {
+      counter++;
+      console.error(`错误 #${counter}: 发生了一个错误！`, new Error('测试错误'));
+    }
+
+    function sendBatch() {
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+          console.log(`批量日志 ${i + 1}/10 - 时间戳: ${Date.now()}`);
+        }, i * 200);
+      }
+    }
+
+    function sendObject() {
+      counter++;
+      const testObj = {
+        id: counter,
+        name: '测试对象',
+        data: {
+          nested: true,
+          values: [1, 2, 3, 4, 5],
+          timestamp: new Date().toISOString()
+        },
+        metadata: {
+          source: 'test-page',
+          version: '1.0.0'
+        }
+      };
+      console.log('复杂对象日志:', testObj);
+    }
+
+    // 页面加载时发送欢迎消息
+    console.log('🎉 测试页面已加载！准备测试动态效果...');
+    console.log('📌 注意：最新的日志会显示在列表顶部！');
+  </script>
+</body>
+</html>

@@ -63,6 +63,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 发布指南
 - 动态效果说明
 
+## [1.0.1] - 2024-12-09
+
+### Changed
+- 📝 更新 README.md 文档，明确说明 CDN 使用方式
+- 📝 添加 USAGE_GUIDE.md 完整使用指南
+- 📝 改进文档说明，强调同源策略限制和文件依赖关系
+
+### Documentation
+- 明确说明使用 CDN 时需要本地部署 `satellite-window.html` 和 `satellite-app.min.js`
+- 添加详细的文件结构示例
+- 更新常见问题解答，增加跨域问题的详细说明
+- 新增 USAGE_GUIDE.md，提供各种使用场景的完整示例
+
 ## [Unreleased]
 
 ### Planned

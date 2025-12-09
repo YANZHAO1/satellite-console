@@ -35,27 +35,69 @@ import 'satellite-console';
 require('satellite-console');
 ```
 
-### 方式 2：通过 CDN 引入
+### 方式 2：本地部署（推荐用于传统项目）
 
-```html
-<!-- 使用最新版本 -->
-<script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
+下载以下文件到你的项目静态资源目录：
+- `dist/launcher.min.js`
+- `dist/satellite-window.html`
+- `dist/satellite-app.min.js`
 
-<!-- 或指定版本 -->
-<script src="https://unpkg.com/satellite-console@1.0.0/dist/launcher.min.js"></script>
+```
+your-project/
+├── static/
+│   └── satellite-console/
+│       ├── launcher.min.js
+│       ├── satellite-window.html
+│       └── satellite-app.min.js
+└── index.html
 ```
 
-### 方式 3：本地文件
-
-下载 `dist/launcher.min.js` 文件到你的项目中：
+然后在 HTML 中引入：
 
 ```html
-<script src="path/to/satellite-console/launcher.min.js"></script>
+<script src="/static/satellite-console/launcher.min.js"></script>
+<script>
+  // 会自动使用同目录的 satellite-window.html
+  SatelliteConsole.launch();
+</script>
+```
+
+### 方式 3：CDN + 本地文件（混合方式）
+
+⚠️ **注意：** 由于同源策略限制，需要将 `satellite-window.html` 和 `satellite-app.min.js` 部署到你的服务器上。
+
+1. 下载以下文件到你的项目：
+   - `dist/satellite-window.html`
+   - `dist/satellite-app.min.js`
+
+2. 将它们放在同一目录下（例如 `/public/`）
+
+3. 使用 CDN 加载 launcher，但指定本地的 satellite-window.html：
+
+```html
+<!-- 从 CDN 加载 launcher -->
+<script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
+<script>
+  // 指定本地的 satellite-window.html
+  SatelliteConsole.launch({
+    satelliteUrl: '/satellite-window.html'
+  });
+</script>
+```
+
+**文件结构示例：**
+
+```
+your-project/
+├── public/
+│   ├── satellite-window.html      ← 必需
+│   └── satellite-app.min.js       ← 必需（被 satellite-window.html 引用）
+└── index.html
 ```
 
 ## 🚀 快速开始
 
-### 基础使用
+### 基础使用（本地部署）
 
 在你的应用入口文件中添加以下代码：
 
@@ -68,11 +110,39 @@ require('satellite-console');
 <body>
   <!-- 你的应用内容 -->
   
-  <!-- 引入 Satellite Console -->
+  <!-- 引入本地的 Satellite Console -->
+  <script src="/static/satellite-console/launcher.min.js"></script>
+  <script>
+    // 启动卫星控制台（自动使用同目录的 satellite-window.html）
+    SatelliteConsole.launch();
+    
+    // 现在你可以正常使用 console
+    console.log('Hello, Satellite Console!');
+    console.warn('This is a warning');
+    console.error('This is an error');
+  </script>
+</body>
+</html>
+```
+
+### 使用 CDN（需要本地部署 satellite-window.html）
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My App</title>
+</head>
+<body>
+  <!-- 你的应用内容 -->
+  
+  <!-- 从 CDN 加载 launcher -->
   <script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
   <script>
-    // 启动卫星控制台
-    SatelliteConsole.launch();
+    // 指定本地的 satellite-window.html
+    SatelliteConsole.launch({
+      satelliteUrl: '/satellite-window.html'
+    });
     
     // 现在你可以正常使用 console
     console.log('Hello, Satellite Console!');
@@ -309,6 +379,136 @@ const DEFAULT_CONFIG = {
 const CHANNEL_NAME = 'satellite-console-channel';
 ```
 
+## ⚠️ 重要：同源策略限制
+
+**Satellite Console 使用 BroadcastChannel API 进行通信，受浏览器同源策略限制。**
+
+### 什么是同源策略？
+
+业务页面和卫星窗口必须在**相同的域名、协议和端口**下才能通信。
+
+### ✅ 可以工作的场景
+
+```javascript
+// 场景 1：通过 npm 安装，构建工具会打包到同一域名
+import { launch } from 'satellite-console';
+launch();
+
+// 场景 2：本地部署所有文件
+<script src="./dist/launcher.min.js"></script>
+<script>
+  SatelliteConsole.launch(); // 自动使用 ./dist/satellite-window.html
+</script>
+
+// 场景 3：CDN + 本地 satellite-window.html
+<script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
+<script>
+  SatelliteConsole.launch({
+    satelliteUrl: '/satellite-window.html' // 部署在你的服务器上
+  });
+</script>
+```
+
+### ❌ 不能工作的场景
+
+```javascript
+// ❌ 错误：业务页面在 localhost，卫星窗口在 CDN
+// 业务页面：http://localhost:8080
+<script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
+<script>
+  SatelliteConsole.launch({
+    satelliteUrl: 'https://unpkg.com/satellite-console/dist/satellite-window.html'
+  });
+  // 窗口能打开，但无法接收日志（跨域）
+</script>
+```
+
+### 📦 推荐的部署方式
+
+#### 方式 1：NPM 包（最推荐）
+
+```bash
+npm install satellite-console
+```
+
+```javascript
+import { launch } from 'satellite-console';
+launch(); // 构建工具会处理所有文件
+```
+
+#### 方式 2：本地部署全部文件
+
+1. 下载 `dist/` 目录的以下文件：
+   - `launcher.min.js`
+   - `satellite-window.html`
+   - `satellite-app.min.js`
+
+2. 放到你的项目静态资源目录（保持在同一目录下）
+
+3. 引入本地文件
+
+```html
+<script src="/static/satellite-console/launcher.min.js"></script>
+<script>
+  SatelliteConsole.launch(); // 自动使用同目录的 satellite-window.html
+</script>
+```
+
+**文件结构：**
+
+```
+your-project/
+├── static/
+│   └── satellite-console/
+│       ├── launcher.min.js
+│       ├── satellite-window.html
+│       └── satellite-app.min.js      ← 被 satellite-window.html 引用
+└── index.html
+```
+
+#### 方式 3：CDN + 本地文件
+
+⚠️ **重要：** 需要同时下载 `satellite-window.html` 和 `satellite-app.min.js` 两个文件。
+
+1. 从 npm 包或 GitHub 下载：
+   - `dist/satellite-window.html`
+   - `dist/satellite-app.min.js`
+
+2. 将它们放在同一目录下（如 `/public/`）
+
+3. 使用 CDN 加载 launcher，但指定本地的 satellite-window.html
+
+```html
+<script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
+<script>
+  SatelliteConsole.launch({
+    satelliteUrl: '/satellite-window.html' // 使用本地文件
+  });
+</script>
+```
+
+**文件结构：**
+
+```
+your-project/
+├── public/
+│   ├── satellite-window.html
+│   └── satellite-app.min.js         ← 必需，被 satellite-window.html 引用
+└── index.html
+```
+
+### 🔍 如何判断是否跨域？
+
+打开浏览器控制台，如果看到类似错误，说明遇到了跨域问题：
+
+```
+业务页面：http://localhost:8080
+卫星窗口：https://unpkg.com/...
+结果：无法通信（不同域名）
+```
+
+**解决方法：** 确保业务页面和 satellite-window.html 在同一个域名下。
+
 ## 🌐 浏览器兼容性
 
 Satellite Console 依赖 BroadcastChannel API，支持以下浏览器：
@@ -423,20 +623,87 @@ satellite-console/
 
 ## ❓ 常见问题
 
+### Q: 卫星窗口打开了，但看不到日志？
+
+A: **这是最常见的问题，通常是跨域导致的。** 检查：
+
+1. **业务页面和卫星窗口是否同源？**
+   - 业务页面：`http://localhost:8080`
+   - 卫星窗口：`https://unpkg.com/...` ❌ 不同源，无法通信
+   - 解决：使用本地部署或 npm 包方式
+
+2. 打开浏览器控制台，查看是否有错误信息
+
+3. 确认浏览器支持 BroadcastChannel API（Chrome 54+, Firefox 38+, Safari 15.4+）
+
+**推荐解决方案：**
+
+```bash
+# 方案 1：使用 npm 包（最简单）
+npm install satellite-console
+```
+
+```javascript
+// 方案 2：下载以下文件到本地（必须在同一目录）
+// - satellite-window.html
+// - satellite-app.min.js
+// 然后指定本地路径
+SatelliteConsole.launch({
+  satelliteUrl: '/satellite-window.html'
+});
+```
+
+**注意：** `satellite-window.html` 会加载同目录下的 `satellite-app.min.js`，所以这两个文件必须放在一起。
+
 ### Q: 卫星窗口没有打开？
 
 A: 检查浏览器是否阻止了弹出窗口。在地址栏右侧查看弹窗拦截图标，点击允许后重试。
 
-### Q: 日志没有显示在卫星窗口？
-
-A: 确认：
-1. 卫星窗口已打开（使用 `SatelliteConsole.isWindowOpen()` 检查）
-2. 浏览器支持 BroadcastChannel API
-3. 业务页面和卫星窗口在同一域名下
-
 ### Q: 如何在多页面应用中使用？
 
 A: 在第一个页面使用 `launch()` 打开卫星窗口，在其他页面使用 `injectOnly()` 只注入脚本。
+
+```javascript
+// page1.html - 主页面
+SatelliteConsole.launch();
+
+// page2.html, page3.html - 其他页面
+SatelliteConsole.injectOnly('page2');
+```
+
+### Q: 可以从 CDN 直接使用吗？
+
+A: 可以，但需要将 `satellite-window.html` 和 `satellite-app.min.js` 部署到本地：
+
+```html
+<!-- ✅ 可以：launcher 从 CDN，satellite-window.html 和 satellite-app.min.js 从本地 -->
+<script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
+<script>
+  SatelliteConsole.launch({
+    satelliteUrl: '/satellite-window.html' // 本地文件
+  });
+</script>
+```
+
+**必需的本地文件：**
+```
+your-project/
+├── public/
+│   ├── satellite-window.html      ← 必需
+│   └── satellite-app.min.js       ← 必需（被 satellite-window.html 引用）
+└── index.html
+```
+
+```html
+<!-- ❌ 不行：全部从 CDN（跨域问题） -->
+<script src="https://unpkg.com/satellite-console/dist/launcher.min.js"></script>
+<script>
+  SatelliteConsole.launch({
+    satelliteUrl: 'https://unpkg.com/satellite-console/dist/satellite-window.html'
+  });
+  // 窗口能打开，但无法接收日志（跨域）
+</script>
+```
 
 ### Q: 会影响生产环境吗？
 
